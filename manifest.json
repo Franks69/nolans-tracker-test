@@ -1,0 +1,17 @@
+{
+  "name": "Nolans Installation Management",
+  "short_name": "Nolans",
+  "start_url": "/nolans-tracker-test/",
+  "scope": "/nolans-tracker-test/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "https://franks69.github.io/nolans-tracker-test/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
