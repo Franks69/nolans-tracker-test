@@ -8,10 +8,51 @@
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/lucide-react@0.344.0/dist/umd/lucide-react.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>* { box-sizing: border-box; } body { margin: 0; padding: 0; }</style>
+  <style>* { box-sizing: border-box; } body { margin: 0; padding: 0; }
+  #startup-status{position:fixed;top:0;left:0;right:0;bottom:0;background:#1a1a2e;color:#a0aec0;font-family:monospace;font-size:14px;padding:30px;z-index:9999;white-space:pre-wrap;overflow:auto;}
+  #startup-status h2{color:#fff;font-size:18px;margin:0 0 16px;}
+  .ok{color:#68d391;} .fail{color:#fc8181;} .warn{color:#f6e05e;}
+  </style>
 </head>
 <body>
+  <div id="startup-status">
+    <h2>🚀 Nolans Install Tracker — Starting up...</h2>
+    <div id="status-lines"><span class="warn">● Checking libraries...</span>
+</div>
+  </div>
   <div id="root"></div>
+  <script>
+(function() {
+  var el = document.getElementById('status-lines');
+  function addLine(msg, cls) {
+    var d = document.createElement('div');
+    d.className = cls || '';
+    d.textContent = msg;
+    el.appendChild(d);
+  }
+  window.__statusLog = addLine;
+
+  // Check CDN scripts
+  addLine((typeof React !== 'undefined' ? '✓' : '✗') + ' React: ' + (typeof React !== 'undefined' ? 'loaded' : 'MISSING'), typeof React !== 'undefined' ? 'ok' : 'fail');
+  addLine((typeof ReactDOM !== 'undefined' ? '✓' : '✗') + ' ReactDOM: ' + (typeof ReactDOM !== 'undefined' ? 'loaded' : 'MISSING'), typeof ReactDOM !== 'undefined' ? 'ok' : 'fail');
+  addLine((typeof LucideReact !== 'undefined' ? '✓' : '✗') + ' LucideReact: ' + (typeof LucideReact !== 'undefined' ? 'loaded' : 'MISSING'), typeof LucideReact !== 'undefined' ? 'ok' : 'fail');
+
+  if (typeof React === 'undefined' || typeof ReactDOM === 'undefined') {
+    addLine('✗ Cannot start — required libraries failed to load. Check your internet connection.', 'fail');
+    return;
+  }
+
+  window.onerror = function(msg, src, line, col, err) {
+    addLine('✗ JS Error at line ' + line + ': ' + msg, 'fail');
+    if (err && err.stack) addLine(err.stack, 'fail');
+    return true;
+  };
+  window.onunhandledrejection = function(e) {
+    addLine('✗ Unhandled promise rejection: ' + (e.reason || e), 'fail');
+  };
+  addLine('● Starting React app...', 'warn');
+})();
+</script>
   <script>
 "use strict";
 const { useState, useEffect, useMemo, useRef, useCallback } = React;
@@ -5516,9 +5557,20 @@ function PerformanceView({ projects, user, reviews }) {
       `)));
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  React.createElement(ErrorBoundary, null, React.createElement(App))
-);
+try {
+  if (window.__statusLog) window.__statusLog('● Mounting app...', 'warn');
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    React.createElement(ErrorBoundary, null, React.createElement(App))
+  );
+  // Hide startup screen after a moment — React has mounted
+  setTimeout(function() {
+    var s = document.getElementById('startup-status');
+    if (s) s.style.display = 'none';
+  }, 800);
+} catch(e) {
+  if (window.__statusLog) window.__statusLog('✗ Fatal error starting app: ' + e.message, 'fail');
+  if (window.__statusLog && e.stack) window.__statusLog(e.stack, 'fail');
+}
   </script>
 </body>
 </html>
