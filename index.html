@@ -88,9 +88,7 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.error) {
       return React.createElement('div',{style:{padding:'20px',fontFamily:'monospace',color:'red',background:'#fff',whiteSpace:'pre-wrap',fontSize:'13px'}},
-        'Error: '+String(this.state.error)+'
-
-'+(this.state.error.stack||''));
+        'Error: '+String(this.state.error)+'\n\n'+(this.state.error.stack||''));
     }
     return this.props.children;
   }
